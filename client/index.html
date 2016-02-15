@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="store_app">
+<head>
+	<meta charset="UTF-8">
+	<title>Mini MEAN Store</title>
+	<link rel="stylesheet" href="css/style.css">
+	<script src='https://ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular.js'/></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular-route.min.js"></script>
+	<script src="moment/moment.js"></script>
+	<script src="angular-moment/angular-moment.js"></script>
+
+	<script>
+		var store_app = angular.module('store_app', ['ngRoute','angularMoment']);
+		
+		store_app.config(function($routeProvider) {
+			$routeProvider
+				.when('/', {
+					templateUrl: 'partials/dashboard.html'
+				})
+				.when('/orders', {
+					templateUrl: 'partials/orders.html'
+				})
+				.when('/customers', {
+					templateUrl: 'partials/customers.html'
+				})
+				.when('/products', {
+					templateUrl: 'partials/products.html'
+				})
+				
+		})
+		store_app.factory('customerFactory',function($http) {
+			var factory = {};
+			var customers = [];
+			factory.getCustomers = function(callback) {
+				$http.get('/customers').success(function(res) {
+					customers = res;
+					callback(customers);
+
+				})
+			}
+
+			factory.addCustomer = function(newCustomer,callback) {
+				$http.post('/customers',newCustomer).success(function(res) {
+					if (res.errmsg !== undefined ) {
+						callback({error:res.errmsg});
+						
+					} else {
+						factory.getCustomers(callback);
+
+					}
+				})
+			}
+
+			factory.removeCustomer = function(index,callback) {
+				var id = customers[index]._id;
+				$http.delete('/customers/'+id).success(function(res) {
+					factory.getCustomers(callback);
+				})
+			}
+			return factory;
+		})
+		store_app.factory('productFactory', function($http) {
+			var factory = {};
+			var products = [];
+			factory.getProducts = function(callback) {
+				$http.get('/products').success(function(res) {
+					products = res;
+					callback(products);
+				})
+
+			}
+			factory.addProduct = function(newProduct,callback) {
+				$http.post('/products',newProduct).success(function(res) {
+					factory.getProducts(callback);
+				})
+
+			}
+
+			factory.getProductQty = function(id, callback) {
+				$http.get('/products/'+id).success(function(res) {
+					callback(res);
+				})
+			}
+			return factory;
+
+		})
+
+		store_app.factory('orderFactory',function($http) {
+			var factory = {};
+			var orders = [];
+			factory.getOrders = function(callback) {
+				$http.get('/orders').success(function(res) {
+					orders = res;
+					callback(orders);
+				})
+			}
+			factory.addOrder = function(newOrder,callback) {
+				$http.post('/orders',newOrder).success(function(res) {
+					factory.getOrders(callback);
+				})
+			}
+			return factory;
+		})
+
+		store_app.controller('customersController', function($scope,customerFactory) {
+			$scope.error = false;
+			$scope.errorMessage = "";
+			$scope.customers = customerFactory.getCustomers(function(customers) {
+				$scope.customers = customers;
+			})
+			$scope.addCustomer = function() {
+				$scope.error = false;
+				customerFactory.addCustomer($scope.newCustomer, function(customers) {
+					if (customers.error !== undefined) {
+						$scope.error = true;
+						$scope.errorMessage = customers.error;
+
+					} else {
+						$scope.customers = customers;
+					}
+
+				})
+				$scope.newCustomer = {};
+			}
+
+			$scope.removeCustomer = function(index) {
+				customerFactory.removeCustomer(index,function(customers) {
+					$scope.customers = customers;
+				})
+			}
+		})
+
+		store_app.controller('productsController',function($scope,productFactory) {
+			$scope.counter = 1;
+			$scope.filter_name = "";
+			$scope.Allproducts = [];
+			$scope.products = [];
+			$scope.reachLimit = false;
+			$scope.range = function(max) {
+				var num = [];
+				for (var i = 1; i <= max; i++) {
+					num.push(i);
+				}
+				return num;
+			}
+
+			$scope.Allproducts = productFactory.getProducts(function(products) {
+				$scope.Allproducts = products;
+				$scope.products = $scope.Allproducts.slice(0,$scope.counter*6);
+			})
+
+			$scope.addProduct = function() {
+				productFactory.addProduct($scope.newProduct, function(products) {
+					$scope.Allproducts = products;
+					var currentLength = $scope.products.length;
+					if (currentLength % 6 == 5) {
+						$scope.reachLimit = false;
+					} else {
+						$scope.products = [];
+						$scope.products = $scope.products.concat($scope.Allproducts.slice(0,$scope.counter*6));
+
+					}
+				})
+				$scope.newProduct = {};
+			}
+			$scope.filter = function() {
+
+				$scope.filter_name = $scope.new_filter;
+				
+				console.log($scope.new_filter);
+				if ($scope.new_filter == undefined || $scope.new_filter == "") {
+					$scope.reachLimit = false;
+				} else {
+					$scope.reachLimit = true;
+				}
+				
+				$scope.new_filter = "";
+			}
+			$scope.showMore = function() {
+				
+				$scope.products = [];
+				$scope.products = [];
+				$scope.counter += 1;
+				$scope.products = $scope.Allproducts.slice(0,$scope.counter*6);
+
+				if ($scope.counter*6 >= $scope.Allproducts.length ) {
+					$scope.reachLimit = true;
+				} 
+
+			
+
+
+
+			}
+
+		})
+
+		store_app.controller('ordersController',function($scope,orderFactory,customerFactory,productFactory) {
+			$scope.selected = "";
+
+			$scope.qty = [];
+			$scope.orders = orderFactory.getOrders(function(orders) {
+
+				$scope.orders = orders;
+			})
+			$scope.customers = customerFactory.getCustomers(function(customers) {
+				$scope.customers = customers;
+			})
+			$scope.products = productFactory.getProducts(function(products) {
+				$scope.products = products;
+
+			})
+
+			$scope.$watch('newOrder.product', function(val) {
+				$scope.qty = [];
+				if (val !== undefined && val !== null) {
+					$scope.selected = val._id;
+					$scope.get_product_qty();
+				}
+			})
+
+
+
+			$scope.get_product_qty = function() {
+				productFactory.getProductQty($scope.selected, function(res) {
+					var max_qty = res.qty;
+					for (var i = 1; i <= max_qty; i ++) {
+						$scope.qty.push(i);
+					}
+				})
+
+			}
+
+			$scope.createOrder = function() {
+				orderFactory.addOrder($scope.newOrder,function(res) {
+					$scope.orders = res;
+				})
+				$scope.newOrder = {};
+			}
+		})
+
+		store_app.controller('dashboardController',function($scope,orderFactory,customerFactory,productFactory) {
+
+			
+			$scope.Productcounter = 1;
+			$scope.Allproducts = [];
+			$scope.products = [];
+			$scope.reachProductLimit = false;
+
+
+			$scope.Ordercounter = 1;
+			$scope.Allorders = [];
+			$scope.orders = [];
+			$scope.reachOrderLimit = false;
+
+			$scope.Customercounter = 1;
+			$scope.Allcustomers = [];
+			$scope.customers = [];
+			$scope.reachCustomerLimit = false;
+
+
+
+			$scope.Allproducts = productFactory.getProducts(function(products) {
+				$scope.Allproducts = products;
+				$scope.products = $scope.Allproducts.slice(0,$scope.Productcounter*3);
+			})
+
+			$scope.showMoreProducts = function() {
+				
+				$scope.products = [];
+				$scope.Productcounter += 1;
+				$scope.products = $scope.Allproducts.slice(0,$scope.Productcounter*3);
+
+				if ($scope.Productcounter*3 >= $scope.Allproducts.length ) {
+					$scope.reachProductLimit = true;
+				} 
+			}
+
+			$scope.Allorders = orderFactory.getOrders(function(orders) {
+				$scope.Allorders = orders;
+				$scope.orders = $scope.Allorders.slice(0,$scope.Ordercounter*3);
+			})
+
+			$scope.showMoreOrders = function() {
+				
+				$scope.orders = [];
+				$scope.Ordercounter += 1;
+				$scope.orders = $scope.Allorders.slice(0,$scope.Ordercounter*3);
+
+				if ($scope.Ordercounter*3 >= $scope.Allorders.length ) {
+					$scope.reachOrderLimit = true;
+				} 
+			}
+
+			$scope.Allcustomers = customerFactory.getCustomers(function(customers) {
+				$scope.Allcustomers = customers;
+				$scope.customers = $scope.Allcustomers.slice(0,$scope.Customercounter*3);
+				if ($scope.customers.length == $scope.Allcustomers.length) {
+					$scope.reachCustomerLimit = true;
+				}
+			})
+
+			$scope.showMoreCustomers = function() {
+				
+				$scope.customers = [];
+				$scope.Customercounter += 1;
+				$scope.customers = $scope.Allcustomers.slice(0,$scope.Customercounter*3);
+
+				if ($scope.Customercounter*3 >= $scope.Allcustomers.length ) {
+					$scope.reachCustomerLimit = true;
+				} 
+			}
+
+
+
+
+
+
+
+
+		})
+
+
+
+
+
+
+		
+
+		
+	</script>
+</head>
+<body>
+	<div id="container">
+		<nav>
+			<a href='#/'>Dashboard</a> | <a href="#/products">Product</a> | <a href="#/orders">Order</a> | <a href="#/customers">Customers</a> 
+		</nav>
+	
+		<div id="main_content" ng-view=""></div>
+	</div>
+	
+</body>
+</html>

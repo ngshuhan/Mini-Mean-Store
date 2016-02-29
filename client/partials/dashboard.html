@@ -1,29 +1,44 @@
 <div ng-controller='dashboardController'>
-	<div class="left_form">
-		<form>
-			<input type="text" placeholder="search..." ng-model="new_filter"><br>
-			<input class="gray" type="submit" value="Filter" ng-click="fun()">
+	<div class="col-sm-2">
+		<form class="form">
+			<div class="form-group">
+				<input class="form-control" type="text" placeholder="search..." ng-model="new_filter">
+				
+			</div>
+			<input class="btn btn-default" type="submit" value="Filter" ng-click="fun()">
 		</form>
 		
 	</div>
-	<div id="right_content">
-		<div class="product" ng-repeat="product in products | filter: filter_name">
-			<img ng-src="{{product.imageUrl}}">
-			<p>{{product.name}}</p>
-			<p>({{product.qty}} left)</p>
+	<div class="col-sm-10">
+		<div class="col-sm-4" ng-repeat="product in products | filter: filter_name">
+			<div class="thumbnail">
+				<img ng-src="{{product.imageUrl}}" style="width:300px;height:200px;">
+				<div class="caption">
+					<p>{{product.name}}</p>
+					<p>({{product.qty}} left)</p>
+				</div>
+				
+			</div>
 		</div>
-		<a id="show_more" href="" ng-if="!reachProductLimit" ng-click="showMoreProducts()">show more...</a>
+		<div class="col-md-offset-5">
+			<a id="show_more" href="" ng-if="!reachProductLimit" ng-click="showMoreProducts()">show more...</a>
+		</div>
+			
+		
 		<h3> Recent Order</h3>
-		<div id="left" ng-repeat="order in orders">
-			<p >{{order._customer.name}} purchased {{order.qty}} {{order.product.name}}...  (<span am-time-ago="order.created_at"></span>)</p>
-		</div>
-		<a id="show_more" href="" ng-if="!reachOrderLimit" ng-click="showMoreOrders()">show more...</a>
+		<ul ng-repeat="order in orders">
+			<li>{{order._customer.name}} purchased {{order.qty}} {{order.product.name}}...  (<span am-time-ago="order.created_at"></span>)</li>
+		</ul>
+		<div class="col-md-offset-5">
+			<a id="show_more" href="" ng-if="!reachOrderLimit" ng-click="showMoreOrders()">show more...</a>
+		</div>	
 		<h3> New Customers</h3>
 		<ul ng-repeat="customer in customers">
-
 			<li>{{customer.name}} joined the store...  (<span am-time-ago="customer.created_at"></span>)</li>
 		</ul>
-		<a id="show_more" href="" ng-if="!reachCustomerLimit" ng-click="showMoreCustomers()">show more...</a>
+		<div class="col-md-offset-5">
+			<a id="show_more" href="" ng-if="!reachCustomerLimit" ng-click="showMoreCustomers()">show more...</a>
+		</div>
 	</div>
 	
 </div>

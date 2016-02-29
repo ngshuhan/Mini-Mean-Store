@@ -280,6 +280,9 @@
 			$scope.Allorders = orderFactory.getOrders(function(orders) {
 				$scope.Allorders = orders;
 				$scope.orders = $scope.Allorders.slice(0,$scope.Ordercounter*3);
+				if ($scope.orders.length == $scope.Allorders.length) {
+					$scope.reachOrderLimit = true;
+				}
 			})
 
 			$scope.showMoreOrders = function() {

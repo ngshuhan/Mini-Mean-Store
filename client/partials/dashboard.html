@@ -25,14 +25,14 @@
 		</div>
 			
 		
-		<h3> Recent Order</h3>
+		<h3 style="text-decoration: underline;"> Recent Order</h3>
 		<ul ng-repeat="order in orders">
 			<li>{{order._customer.name}} purchased {{order.qty}} {{order.product.name}}...  (<span am-time-ago="order.created_at"></span>)</li>
 		</ul>
 		<div class="col-md-offset-5">
 			<a id="show_more" href="" ng-if="!reachOrderLimit" ng-click="showMoreOrders()">show more...</a>
 		</div>	
-		<h3> New Customers</h3>
+		<h3 style="text-decoration: underline;"> New Customers</h3>
 		<ul ng-repeat="customer in customers">
 			<li>{{customer.name}} joined the store...  (<span am-time-ago="customer.created_at"></span>)</li>
 		</ul>

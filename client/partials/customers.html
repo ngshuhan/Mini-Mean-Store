@@ -1,5 +1,8 @@
 <div ng-controller="customersController">
-	<p id="errorMessage" ng-if="error">{{errorMessage}}</p>
+
+
+	<div class="alert alert-danger" ng-if="error" role="alert">
+	<strong>Sorry!</strong> The username has already been taken.</div>
 
 	<form class="form-inline">
 		<fieldset> 

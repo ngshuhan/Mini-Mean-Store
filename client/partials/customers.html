@@ -1,15 +1,25 @@
 <div ng-controller="customersController">
 	<p id="errorMessage" ng-if="error">{{errorMessage}}</p>
 
-	<h4>Add a new customer</h4>
-	<form class="top_form">
-		Customer Name: 
-		<input type="text" ng-model="newCustomer.name">
-		<input class="blue" type="submit" value="Add" ng-click="addCustomer()"> 
+	<form class="form-inline">
+		<fieldset> 
+			<legend>Add a New Customer </legend>
+			<div class="form-group">
+				<label for="customerName">Customer Name: </label>
+				<input type="text" class="form-control" id="customerName" ng-model="newCustomer.name">
+			</div>
+			<input class="btn btn-primary" type="submit" value="Add" ng-click="addCustomer()"> 
+		</fieldset>
+		
+		
 	</form>
 	<div class="lower_content">
-		<input type="text" ng-model="filter_name" placeholder="search..." class="filter"><br>
-		<table>
+		<form class="form-horizontal col-sm-3 col-sm-offset-9">
+			<div class="form-group">
+				<input class="form-control" type="text" ng-model="filter_name" placeholder="search...">
+			</div>
+		</form>
+		<table class="table table-bordered">
 			<tr>
 				<th>Customer Name</th>
 				<th>Created Date</th>
@@ -18,7 +28,8 @@
 			<tr ng-repeat="customer in customers | filter:filter_name" >
 				<td>{{customer.name}}</td>
 				<td>{{customer.created_at | date:'MMM d, yyyy'}}</td>
-				<td><button class="red" ng-click="removeCustomer($index)">Remove</button></td>
+			
+				<td><button type="button" class="btn btn-danger" ng-click="removeCustomer(customers.indexOf(customer))">Remove</button></td>
 			</tr>
 		</table>
 

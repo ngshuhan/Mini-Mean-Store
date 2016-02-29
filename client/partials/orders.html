@@ -1,39 +1,51 @@
 <div ng-controller="ordersController">
-	<h4>Add a new order</h4>
-	<form class="top_form">
-
-
-
-
-
-		<label>Customer: </label>
-		<select ng-model="newOrder.customer" ng-options="customer.name for customer in customers">
-			<option value="">-- choose customer--</option>
-		</select><br>
-
-
-		<label>Product:</label>
-		<select ng-model="newOrder.product" ng-options="product.name for product in products" >
-			<option value="">---choose products--</option>
-		</select><br>
-
-		<label ng-if="selected" >Order:</label>
-
-		<select ng-model="newOrder.qty" ng-if="selected" ng-options="qty for qty in qty">
-			<option value="">----Choose qty----</option>
-		</select><br>
-		<input class="blue" type="submit" value="Order" ng-click="createOrder()"> 
+	<form class="form-horizontal">
+		<fieldset>
+			<legend>Add a New Order</legend>
+			<div class="form-group">
+				<label for="CustomerName" class="col-sm-2 control-label">Customer:</label>
+				<div class="col-sm-6">
+					<select class="form-control" ng-model="newOrder.customer" ng-options="customer.name for customer in customers">
+						<option value="">-- choose customer--</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="ProductName" class="col-sm-2 control-label">Product:</label>
+				<div class="col-sm-6">
+					<select class="form-control" ng-model="newOrder.product" ng-options="product.name for product in products" >
+						<option value="">---choose products--</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label ng-if="selected" for="Quantity" class="col-sm-2 control-label">Order:</label>
+				<div class="col-sm-6">
+					<select ng-if="selected" class="form-control" ng-model="newOrder.qty" ng-if="selected" ng-options="qty for qty in qty">
+						<option value="">----Choose qty----</option>
+					</select><br>
+				</div>
+			</div>
+			<div class="col-sm-offset-7">
+				<input class="btn btn-primary" type="submit" value="Order" ng-click="createOrder()">
+			</div>
+			
+		</fieldset>
 	</form>
 	<div class="lower_content">
-		<input type="text" ng-model="filter_name" placeholder="search..." class="filter"><br>
-		<table>
+		<form class="form-horizontal col-sm-3 col-sm-offset-9">
+			<div class="form-group">
+				<input class="form-control" type="text" ng-model="filter_name" placeholder="search...">
+			</div>
+		</form>
+		<table class="table table-bordered">
 			<tr>
 				<th>Customer Name</th>
 				<th>Product</th>
 				<th>Quantity</th>
 				<th>Date</th>
 			</tr>
-			<tr ng-repeat="order in orders">
+			<tr ng-repeat="order in orders | filter: filter_name">
 				<td>{{order._customer.name}}</td>
 				<td>{{order.product.name}}</td>
 				<td>{{order.qty}}</td>
